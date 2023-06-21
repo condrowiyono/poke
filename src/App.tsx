@@ -4,6 +4,13 @@ import Pokemon from "./pages/Pokemon";
 import PokemonDetail from "./pages/PokemonDetail";
 import { RouterProvider, RouterObject } from "./router/context";
 
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+
+const client = new ApolloClient({
+  uri: "https://beta.pokeapi.co/graphql/v1beta",
+  cache: new InMemoryCache(),
+});
+
 const router: RouterObject[] = [
   {
     path: "/",
@@ -24,7 +31,11 @@ const router: RouterObject[] = [
 ];
 
 const App = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <ApolloProvider client={client}>
+      <RouterProvider router={router} />
+    </ApolloProvider>
+  );
 };
 
 export default App;

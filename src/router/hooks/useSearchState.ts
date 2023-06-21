@@ -11,10 +11,7 @@ const useSearchState = <T extends { [K in keyof T]: string }>(initial?: T) => {
 
   const urlSearchObj = Object.fromEntries(params);
 
-  const searchObj = useMemo<T>(
-    () => ({ ...initial, ...urlSearchObj }),
-    [search]
-  );
+  let searchObj = { ...initial, ...urlSearchObj };
 
   const setState = (state?: SetStateAction<{ [K in keyof T]: string }>) => {
     if (state === undefined) {

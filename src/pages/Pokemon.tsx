@@ -1,42 +1,52 @@
 import { FormEvent } from "react";
 import Link from "../router/components/Link";
 import useSearchState from "../router/hooks/useSearchState";
+import { useQuery } from "@apollo/client";
+import getPokemons from "../service/getPokemon";
+import { Response } from "../types/common";
+import type { Pokemon } from "../types/pokemon";
 
-enum PokemonType {
-  Fire = "🔥",
-  Common = "🌳",
-  Water = "💧",
-  Electric = "⚡",
-  Ice = "❄️",
-  Flying = "🦅",
-  Psychic = "🔮",
-  Bug = "🐛",
-  Rock = "🪨",
-  Ghost = "👻",
-  Dark = "🌑",
-  Dragon = "🐉",
-  Steel = "🔩",
-  Fairy = "🧚",
-  Poison = "☠️",
-  Fighting = "🥊",
-  Normal = "👤",
-  Ground = "🌍",
+enum PokemonTypeEnum {
+  fire = "🔥",
+  water = "💧",
+  electric = "⚡",
+  ice = "❄️",
+  flying = "🦅",
+  psychic = "🔮",
+  bug = "🐛",
+  rock = "🪨",
+  ghost = "👻",
+  dark = "🌑",
+  dragon = "🐉",
+  steel = "🔩",
+  fairy = "🧚",
+  poison = "☠️",
+  fighting = "🥊",
+  normal = "👤",
+  ground = "🌍",
 }
 
 type PokemonParams = {
   name?: string;
-  type?: keyof typeof PokemonType;
+  type?: keyof typeof PokemonTypeEnum;
 };
 
 const Pokemon = () => {
-  const [params, setState] = useSearchState<PokemonParams>();
+  const [params, setParams] = useSearchState<PokemonParams>({});
+
+  const { data, loading } = useQuery<Response<Pokemon[]>>(getPokemons(params), {
+    variables: {
+      ...params,
+      limit: 100,
+    },
+  });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const formParams: PokemonParams = Object.fromEntries(formData.entries());
 
-    setState((old) => ({ ...old, ...formParams }));
+    setParams((old) => ({ ...old, ...formParams }));
   };
 
   return (
@@ -51,18 +61,41 @@ const Pokemon = () => {
 
           <select defaultValue={params.type} name="type" id="type">
             <option value="">All</option>
-            {Object.keys(PokemonType).map((type) => (
+            {Object.keys(PokemonTypeEnum).map((type) => (
               <option key={type} value={type}>
-                {PokemonType[type]} - {type}
+                {PokemonTypeEnum[type]} - {type}
               </option>
             ))}
           </select>
 
           <button type="submit">Cari</button>
-          <button type="reset">Reset</button>
+          <button type="reset" onClick={() => setParams(undefined)}>
+            Reset
+          </button>
         </form>
       </fieldset>
-      <div>Pokemon</div>
+      <fieldset>
+        <legend>Pokemon</legend>
+        {loading && <div>Loading...</div>}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          }}
+        >
+          {data?.data?.map((poke) => (
+            <Link key={poke.id} to={`pokemon/${poke.name}`}>
+              <div>
+                [{poke.id}] {poke.name} (
+                {poke.pokemon_v2_pokemontypes
+                  .map((t) => t.pokemon_v2_type.name)
+                  .join(" | ")}
+                )
+              </div>
+            </Link>
+          ))}
+        </div>
+      </fieldset>
     </div>
   );
 };
