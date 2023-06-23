@@ -2,6 +2,7 @@ import About from "./pages/About";
 import Home from "./pages/Home";
 import Pokemon from "./pages/Pokemon";
 import PokemonDetail from "./pages/PokemonDetail";
+import Test from "./pages/Test";
 import { RouterProvider, RouterObject } from "./router/context";
 
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
@@ -21,12 +22,37 @@ const router: RouterObject[] = [
     element: <About />,
   },
   {
-    path: "/pokemon",
-    element: <Pokemon />,
+    path: "/layout",
+    element: <About />,
+    children: [
+      {
+        path: "/one",
+        element: <Home />,
+      },
+    ],
   },
   {
-    path: "/pokemon/:name",
-    element: <PokemonDetail />,
+    path: "/pokemon",
+    element: <Pokemon />,
+    children: [
+      {
+        path: "/:name",
+        element: <PokemonDetail />,
+        exact: true,
+        children: [
+          {
+            path: "/evolution",
+            element: <div>Evolution</div>,
+            children: [
+              {
+                path: "/:name2",
+                element: <PokemonDetail />,
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 ];
 

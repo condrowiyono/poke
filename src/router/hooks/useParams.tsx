@@ -16,6 +16,8 @@ const useParams = <T extends Record<string, string>>() => {
     return acc;
   }, {} as T);
 
+  console.log(params);
+
   return params;
 };
 

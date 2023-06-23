@@ -9,7 +9,8 @@ type Params = {
 };
 
 const PokemonDetail = () => {
-  const { name } = useParams();
+  const { name, name2 } = useParams();
+  console.log(name, name2);
   const { data } = useQuery<Response<Pokemon[]>>(getPokemonDetail(name), {
     variables: { name },
   });
